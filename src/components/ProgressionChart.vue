@@ -33,7 +33,7 @@ import {
   Tooltip,
   Filler,
 } from 'chart.js'
-import type { WeekDataPoint } from '@/composables/useStats'
+import type { WeekDataPoint } from '@/stores/stats'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler)
 
