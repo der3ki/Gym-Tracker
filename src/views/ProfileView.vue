@@ -140,37 +140,41 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserProfile } from '@/composables/useUserProfile'
-import { useStats } from '@/composables/useStats'
-import { useRoutine } from '@/composables/useRoutine'
+import { storeToRefs } from 'pinia'
+import { useUserProfileStore } from '@/stores/userProfile'
+import { useStatsStore } from '@/stores/stats'
+import { useRoutineStore } from '@/stores/routine'
 import { getAuthUser, logout } from '@/services/auth'
 import { setStorageMode } from '@/services/storage-provider'
-import type { PersonalRecord, ExerciseProgression } from '@/composables/useStats'
+import type { PersonalRecord, ExerciseProgression } from '@/stores/stats'
 import ProgressionChart from '@/components/ProgressionChart.vue'
 
 const router = useRouter()
 const authUser = getAuthUser()
-const { profile, hasProfile, daysSinceStart, init: initProfile, createProfile, updateProfile } = useUserProfile()
-const { getPersonalRecords, getExerciseProgressions } = useStats()
-const { routines, init: initRoutines } = useRoutine()
+const profileStore = useUserProfileStore()
+const statsStore = useStatsStore()
+const routineStore = useRoutineStore()
+
+const { profile, hasProfile, daysSinceStart } = storeToRefs(profileStore)
+const { routines } = storeToRefs(routineStore)
 
 const personalRecords = ref<PersonalRecord[]>([])
 const progressions = ref<ExerciseProgression[]>([])
 const selectedRoutineId = ref('')
 
 async function loadStats() {
-  personalRecords.value = await getPersonalRecords()
+  personalRecords.value = await statsStore.getPersonalRecords()
   if (selectedRoutineId.value) {
-    progressions.value = await getExerciseProgressions(selectedRoutineId.value)
+    progressions.value = await statsStore.getExerciseProgressions(selectedRoutineId.value)
   } else {
     progressions.value = []
   }
 }
 
 onMounted(async () => {
-  await Promise.all([initProfile(), initRoutines()])
-  if (routines.value.length > 0 && !selectedRoutineId.value) {
-    selectedRoutineId.value = routines.value[0].id
+  await Promise.all([profileStore.ensureLoaded(), routineStore.ensureLoaded()])
+  if (routineStore.routines.length > 0 && !selectedRoutineId.value) {
+    selectedRoutineId.value = routineStore.routines[0].id
   }
   await loadStats()
 })
@@ -188,7 +192,7 @@ const editStartDate = ref('')
 async function handleCreate() {
   const name = newName.value.trim()
   if (!name) return
-  await createProfile(name)
+  await profileStore.createProfile(name)
   newName.value = ''
 }
 
@@ -202,7 +206,7 @@ function startEdit() {
 }
 
 async function handleSave() {
-  await updateProfile({
+  await profileStore.updateProfile({
     name: editName.value.trim(),
     bodyWeight: editWeight.value || null,
     height: editHeight.value || null,
@@ -214,6 +218,8 @@ async function handleSave() {
 function handleLogout() {
   logout()
   setStorageMode('local')
+  routineStore.$reset()
+  profileStore.$reset()
   router.push({ name: 'auth' })
 }
 </script>

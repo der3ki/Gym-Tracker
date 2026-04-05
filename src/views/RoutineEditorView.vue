@@ -53,22 +53,21 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRoutine } from '@/composables/useRoutine'
+import { useRoutineStore } from '@/stores/routine'
 import { createExerciseFactory } from '@/composables/useExerciseFactory'
 import type { ExerciseType, RepRange } from '@/types'
 import DayCard from '@/components/DayCard.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
-const { getRoutineById, init, addDay, removeDay, addExerciseToDay, removeExerciseFromDay } =
-  useRoutine()
+const routineStore = useRoutineStore()
 const exerciseFactory = createExerciseFactory()
 
-onMounted(() => init())
+onMounted(() => routineStore.ensureLoaded())
 
 const newDayName = ref('')
 
-const routine = computed(() => getRoutineById(props.id))
+const routine = computed(() => routineStore.getRoutineById(props.id))
 
 const hasExercises = computed(() =>
   routine.value?.days.some((d) => d.exercises.length > 0) ?? false,
@@ -77,21 +76,21 @@ const hasExercises = computed(() =>
 async function handleAddDay() {
   const name = newDayName.value.trim()
   if (!name) return
-  await addDay(props.id, name)
+  await routineStore.addDay(props.id, name)
   newDayName.value = ''
 }
 
 async function handleRemoveDay(dayId: string) {
-  await removeDay(props.id, dayId)
+  await routineStore.removeDay(props.id, dayId)
 }
 
 async function handleAddExercise(dayId: string, name: string, type: ExerciseType, repRange: RepRange, sets: number, category: string) {
   const exercise = exerciseFactory.create(name, type, repRange, sets, category)
-  await addExerciseToDay(props.id, dayId, exercise)
+  await routineStore.addExerciseToDay(props.id, dayId, exercise)
 }
 
 async function handleRemoveExercise(dayId: string, exerciseId: string) {
-  await removeExerciseFromDay(props.id, dayId, exerciseId)
+  await routineStore.removeExerciseFromDay(props.id, dayId, exerciseId)
 }
 
 function goToWeeks() {
