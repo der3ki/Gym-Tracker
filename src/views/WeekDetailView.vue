@@ -61,9 +61,10 @@
       <button
         v-if="week.status === 'in_progress' && allDaysCompleted"
         class="btn-primary btn-block mt-md"
-        @click="handleCompleteWeek"
+        :disabled="completing"
+        @click="runCompleteWeek"
       >
-        Completar semana y generar la siguiente
+        {{ completing ? 'Completando...' : 'Completar semana y generar la siguiente' }}
       </button>
     </div>
   </div>
@@ -74,6 +75,7 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoutineStore } from '@/stores/routine'
 import { useTrainingWeekStore } from '@/stores/trainingWeek'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 import type { WeekDayPlan } from '@/types'
 
 const props = defineProps<{
@@ -121,7 +123,7 @@ function goToWorkout(dayId: string) {
   })
 }
 
-async function handleCompleteWeek() {
+const { loading: completing, run: runCompleteWeek } = useAsyncAction(async () => {
   if (!routine.value) return
   const nextWeek = await weekStore.completeWeekAndGenerateNext(props.weekId, routine.value)
   if (nextWeek) {
@@ -130,7 +132,7 @@ async function handleCompleteWeek() {
       params: { routineId: props.routineId, weekId: nextWeek.id },
     })
   }
-}
+})
 </script>
 
 <style scoped>

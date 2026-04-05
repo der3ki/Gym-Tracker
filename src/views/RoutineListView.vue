@@ -5,15 +5,15 @@
     </header>
 
     <div class="page-content">
-      <form class="create-form" @submit.prevent="handleCreate">
+      <form class="create-form" @submit.prevent="runCreate">
         <input
           v-model="newRoutineName"
           type="text"
           placeholder="Nombre de la rutina..."
           aria-label="Nombre de la nueva rutina"
         />
-        <button type="submit" class="btn-primary" :disabled="!newRoutineName.trim()">
-          Crear
+        <button type="submit" class="btn-primary" :disabled="!newRoutineName.trim() || creating">
+          {{ creating ? 'Creando...' : 'Crear' }}
         </button>
       </form>
 
@@ -26,7 +26,7 @@
         v-for="routine in routines"
         :key="routine.id"
         :routine="routine"
-        @delete="handleDelete"
+        @delete="runDelete"
         @select="handleSelect"
       />
     </div>
@@ -37,6 +37,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoutineStore } from '@/stores/routine'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 import RoutineCard from '@/components/RoutineCard.vue'
 
 const router = useRouter()
@@ -47,16 +48,16 @@ onMounted(() => routineStore.ensureLoaded())
 
 const newRoutineName = ref('')
 
-async function handleCreate() {
+const { loading: creating, run: runCreate } = useAsyncAction(async () => {
   const name = newRoutineName.value.trim()
   if (!name) return
   await routineStore.createRoutine(name)
   newRoutineName.value = ''
-}
+})
 
-async function handleDelete(routineId: string) {
+const { run: runDelete } = useAsyncAction(async (routineId: string) => {
   await routineStore.deleteRoutine(routineId)
-}
+})
 
 function handleSelect(routineId: string) {
   router.push({ name: 'routine-editor', params: { id: routineId } })

@@ -63,6 +63,11 @@ button:active {
   opacity: 0.8;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   background: var(--color-primary);
   color: white;

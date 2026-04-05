@@ -22,10 +22,10 @@
 
       <button
         class="btn-primary btn-block mt-md"
-        :disabled="!hasData"
-        @click="handleSave"
+        :disabled="!hasData || saving"
+        @click="runSave"
       >
-        Guardar entrenamiento
+        {{ saving ? 'Guardando...' : 'Guardar entrenamiento' }}
       </button>
 
       <p v-if="saved" class="text-sm mt-sm" style="text-align: center; color: var(--color-success)">
@@ -40,6 +40,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoutineStore } from '@/stores/routine'
 import { useTrainingWeekStore } from '@/stores/trainingWeek'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 import type { SetLog, ExerciseTarget } from '@/types'
 import ExerciseSession from '@/components/ExerciseSession.vue'
 
@@ -95,7 +96,7 @@ const hasData = computed(() =>
   ),
 )
 
-async function handleSave() {
+const { loading: saving, run: runSave } = useAsyncAction(async () => {
   const exercises = Object.entries(sessionData)
     .filter(([, sets]) => sets.some((s) => s.weight > 0 && s.reps > 0))
     .map(([exerciseId, sets]) => ({
@@ -114,7 +115,7 @@ async function handleSave() {
       params: { routineId: props.routineId, weekId: props.weekId },
     })
   }, 1000)
-}
+})
 
 function goBack() {
   router.push({
