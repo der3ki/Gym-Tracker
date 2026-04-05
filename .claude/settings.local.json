@@ -14,7 +14,8 @@
       "Bash(docker compose:*)",
       "Bash(where docker:*)",
       "Bash(where docker.exe)",
-      "Bash(\"/c/Program Files/Docker/Docker/resources/bin/docker\" --version)"
+      "Bash(\"/c/Program Files/Docker/Docker/resources/bin/docker\" --version)",
+      "Bash(npx vue-tsc:*)"
     ]
   }
 }

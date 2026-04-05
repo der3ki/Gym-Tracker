@@ -1,7 +1,6 @@
 import type {
   Exercise,
   ExerciseTarget,
-  WeekDayPlan,
   CompletedExercise,
 } from '@/types'
 import {

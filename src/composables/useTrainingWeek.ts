@@ -4,7 +4,6 @@ import type {
   WeekDayPlan,
   CompletedExercise,
   Routine,
-  SetLog,
 } from '@/types'
 import type { StoragePort } from '@/services/storage'
 import { createStorage } from '@/services/storage-provider'

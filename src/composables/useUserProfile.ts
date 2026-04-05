@@ -2,14 +2,11 @@ import { ref, computed } from 'vue'
 import type { UserProfile } from '@/types'
 import type { StoragePort } from '@/services/storage'
 import { createStorage } from '@/services/storage-provider'
-import type { IdGenerator } from '@/services/id-generator'
-import { cryptoIdGenerator } from '@/services/id-generator'
 
 const PROFILE_ID = 'user-profile'
 
 export function useUserProfile(
   storage: StoragePort<UserProfile> = createStorage<UserProfile>('user-profile', '/api/user-profile'),
-  idGenerator: IdGenerator = cryptoIdGenerator,
 ) {
   const profile = ref<UserProfile | null>(null)
 

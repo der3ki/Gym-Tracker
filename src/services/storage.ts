@@ -6,7 +6,11 @@ export interface StoragePort<T> {
 }
 
 export class LocalStorageAdapter<T extends { id: string }> implements StoragePort<T> {
-  constructor(private readonly key: string) {}
+  private readonly key: string
+
+  constructor(key: string) {
+    this.key = key
+  }
 
   getAll(): T[] {
     const raw = localStorage.getItem(this.key)
@@ -36,11 +40,19 @@ export class LocalStorageAdapter<T extends { id: string }> implements StoragePor
 }
 
 export class ApiStorageAdapter<T extends { id: string }> implements StoragePort<T> {
+  private readonly endpoint: string
+  private readonly getAuthToken: () => string | null
+  private readonly baseUrl: string
+
   constructor(
-    private readonly endpoint: string,
-    private readonly getAuthToken: () => string | null,
-    private readonly baseUrl: string = import.meta.env.VITE_API_URL || 'http://localhost:3001',
-  ) {}
+    endpoint: string,
+    getAuthToken: () => string | null,
+    baseUrl: string = import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  ) {
+    this.endpoint = endpoint
+    this.getAuthToken = getAuthToken
+    this.baseUrl = baseUrl
+  }
 
   private get headers() {
     const h: Record<string, string> = { 'Content-Type': 'application/json' }

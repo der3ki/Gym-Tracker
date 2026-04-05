@@ -1,4 +1,4 @@
-import type { TrainingWeek, Routine, SetLog } from '@/types'
+import type { TrainingWeek, Routine } from '@/types'
 import type { StoragePort } from '@/services/storage'
 import { createStorage } from '@/services/storage-provider'
 

@@ -66,8 +66,10 @@ const chartOptions = computed(() => ({
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (ctx: { parsed: { y: number } }) =>
-          mode.value === 'weight' ? `${ctx.parsed.y} kg` : `${ctx.parsed.y} kg·reps`,
+        label: (ctx: { parsed: { y: number | null } }) => {
+          const val = ctx.parsed.y ?? 0
+          return mode.value === 'weight' ? `${val} kg` : `${val} kg·reps`
+        },
       },
     },
   },
