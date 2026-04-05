@@ -12,6 +12,9 @@ export const app = express()
 app.use(cors())
 app.use(express.json())
 
+// Health check (public)
+app.get('/health', (_req, res) => res.json({ status: 'ok' }))
+
 // Public routes (no auth required)
 app.use('/api/auth', authRouter)
 
