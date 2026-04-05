@@ -17,9 +17,10 @@
         <button
           v-if="!activeWeek"
           class="btn-primary btn-block mb-md"
-          @click="handleStartFirstWeek"
+          :disabled="starting"
+          @click="runStartFirstWeek"
         >
-          Empezar Semana 1
+          {{ starting ? 'Iniciando...' : 'Empezar Semana 1' }}
         </button>
 
         <div v-if="routineWeeks.length === 0" class="empty-state">
@@ -61,6 +62,7 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoutineStore } from '@/stores/routine'
 import { useTrainingWeekStore } from '@/stores/trainingWeek'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 import type { TrainingWeek } from '@/types'
 
 const props = defineProps<{ routineId: string }>()
@@ -81,11 +83,11 @@ function completedDays(week: TrainingWeek): number {
   return week.days.filter((d) => d.status === 'completed').length
 }
 
-async function handleStartFirstWeek() {
+const { loading: starting, run: runStartFirstWeek } = useAsyncAction(async () => {
   if (!routine.value) return
   const week = await weekStore.startFirstWeek(routine.value)
   router.push({ name: 'week-detail', params: { routineId: props.routineId, weekId: week.id } })
-}
+})
 
 function goToWeek(weekId: string) {
   router.push({ name: 'week-detail', params: { routineId: props.routineId, weekId } })

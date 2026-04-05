@@ -20,15 +20,15 @@
       </button>
 
       <section class="mb-md">
-        <form class="create-form" @submit.prevent="handleAddDay">
+        <form class="create-form" @submit.prevent="runAddDay">
           <input
             v-model="newDayName"
             type="text"
             placeholder="Nombre del dia (ej: Dia 1 - Upper)"
             aria-label="Nombre del nuevo dia"
           />
-          <button type="submit" class="btn-primary" :disabled="!newDayName.trim()">
-            + Dia
+          <button type="submit" class="btn-primary" :disabled="!newDayName.trim() || addingDay">
+            {{ addingDay ? 'Agregando...' : '+ Dia' }}
           </button>
         </form>
       </section>
@@ -42,9 +42,9 @@
         :key="day.id"
         :day="day"
         :routine-id="routine.id"
-        @remove-day="handleRemoveDay"
-        @add-exercise="handleAddExercise"
-        @remove-exercise="handleRemoveExercise"
+        @remove-day="runRemoveDay"
+        @add-exercise="runAddExercise"
+        @remove-exercise="runRemoveExercise"
       />
     </div>
   </div>
@@ -54,6 +54,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoutineStore } from '@/stores/routine'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 import { createExerciseFactory } from '@/composables/useExerciseFactory'
 import type { ExerciseType, RepRange } from '@/types'
 import DayCard from '@/components/DayCard.vue'
@@ -73,25 +74,25 @@ const hasExercises = computed(() =>
   routine.value?.days.some((d) => d.exercises.length > 0) ?? false,
 )
 
-async function handleAddDay() {
+const { loading: addingDay, run: runAddDay } = useAsyncAction(async () => {
   const name = newDayName.value.trim()
   if (!name) return
   await routineStore.addDay(props.id, name)
   newDayName.value = ''
-}
+})
 
-async function handleRemoveDay(dayId: string) {
+const { run: runRemoveDay } = useAsyncAction(async (dayId: string) => {
   await routineStore.removeDay(props.id, dayId)
-}
+})
 
-async function handleAddExercise(dayId: string, name: string, type: ExerciseType, repRange: RepRange, sets: number, category: string) {
+const { run: runAddExercise } = useAsyncAction(async (dayId: string, name: string, type: ExerciseType, repRange: RepRange, sets: number, category: string) => {
   const exercise = exerciseFactory.create(name, type, repRange, sets, category)
   await routineStore.addExerciseToDay(props.id, dayId, exercise)
-}
+})
 
-async function handleRemoveExercise(dayId: string, exerciseId: string) {
+const { run: runRemoveExercise } = useAsyncAction(async (dayId: string, exerciseId: string) => {
   await routineStore.removeExerciseFromDay(props.id, dayId, exerciseId)
-}
+})
 
 function goToWeeks() {
   router.push({ name: 'week-list', params: { routineId: props.id } })

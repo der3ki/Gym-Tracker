@@ -7,7 +7,7 @@
     <div class="page-content">
       <!-- Create profile -->
       <div v-if="!hasProfile" class="card">
-        <form class="profile-form" @submit.prevent="handleCreate">
+        <form class="profile-form" @submit.prevent="runCreateProfile">
           <h2>Crear perfil</h2>
           <div class="form-group">
             <label for="profile-name">Nombre</label>
@@ -19,8 +19,8 @@
               required
             />
           </div>
-          <button type="submit" class="btn-primary btn-block" :disabled="!newName.trim()">
-            Crear perfil
+          <button type="submit" class="btn-primary btn-block" :disabled="!newName.trim() || creatingProfile">
+            {{ creatingProfile ? 'Creando...' : 'Crear perfil' }}
           </button>
         </form>
       </div>
@@ -55,7 +55,7 @@
           </div>
 
           <!-- Edit form -->
-          <form v-else class="profile-form" @submit.prevent="handleSave">
+          <form v-else class="profile-form" @submit.prevent="runSaveProfile">
             <h2>Editar perfil</h2>
             <div class="form-group">
               <label for="edit-name">Nombre</label>
@@ -75,7 +75,9 @@
             </div>
             <div class="form-actions">
               <button type="button" class="btn-ghost" @click="editing = false">Cancelar</button>
-              <button type="submit" class="btn-primary">Guardar</button>
+              <button type="submit" class="btn-primary" :disabled="savingProfile">
+                {{ savingProfile ? 'Guardando...' : 'Guardar' }}
+              </button>
             </div>
           </form>
         </div>
@@ -144,6 +146,7 @@ import { storeToRefs } from 'pinia'
 import { useUserProfileStore } from '@/stores/userProfile'
 import { useStatsStore } from '@/stores/stats'
 import { useRoutineStore } from '@/stores/routine'
+import { useAsyncAction } from '@/composables/useAsyncAction'
 import { getAuthUser, logout } from '@/services/auth'
 import { setStorageMode } from '@/services/storage-provider'
 import type { PersonalRecord, ExerciseProgression } from '@/stores/stats'
@@ -189,12 +192,12 @@ const editWeight = ref<number | null>(null)
 const editHeight = ref<number | null>(null)
 const editStartDate = ref('')
 
-async function handleCreate() {
+const { loading: creatingProfile, run: runCreateProfile } = useAsyncAction(async () => {
   const name = newName.value.trim()
   if (!name) return
   await profileStore.createProfile(name)
   newName.value = ''
-}
+})
 
 function startEdit() {
   if (!profile.value) return
@@ -205,7 +208,7 @@ function startEdit() {
   editing.value = true
 }
 
-async function handleSave() {
+const { loading: savingProfile, run: runSaveProfile } = useAsyncAction(async () => {
   await profileStore.updateProfile({
     name: editName.value.trim(),
     bodyWeight: editWeight.value || null,
@@ -213,7 +216,7 @@ async function handleSave() {
     trainingStartDate: editStartDate.value || null,
   })
   editing.value = false
-}
+})
 
 function handleLogout() {
   logout()
