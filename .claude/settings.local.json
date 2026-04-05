@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(cp -r gym-tracker-temp/* .)",
+      "Bash(cp gym-tracker-temp/.gitignore .)",
+      "Bash(cp gym-tracker-temp/.vscode/* .vscode/)",
+      "Bash(rm -rf gym-tracker-temp)",
+      "Bash(npm install:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx prisma:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:3001/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"x\"\",\"\"password\"\":\"\"x\"\"}')",
+      "Bash(docker compose:*)",
+      "Bash(where docker:*)",
+      "Bash(where docker.exe)",
+      "Bash(\"/c/Program Files/Docker/Docker/resources/bin/docker\" --version)"
+    ]
+  }
+}
