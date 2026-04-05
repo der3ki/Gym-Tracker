@@ -38,8 +38,8 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRoutine } from '@/composables/useRoutine'
-import { useTrainingWeek } from '@/composables/useTrainingWeek'
+import { useRoutineStore } from '@/stores/routine'
+import { useTrainingWeekStore } from '@/stores/trainingWeek'
 import type { SetLog, ExerciseTarget } from '@/types'
 import ExerciseSession from '@/components/ExerciseSession.vue'
 
@@ -50,11 +50,11 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
-const { getRoutineById, init: initRoutines } = useRoutine()
-const { getWeekById, saveDayWorkout, init: initWeeks } = useTrainingWeek()
+const routineStore = useRoutineStore()
+const weekStore = useTrainingWeekStore()
 
-const routine = computed(() => getRoutineById(props.routineId))
-const week = computed(() => getWeekById(props.weekId))
+const routine = computed(() => routineStore.getRoutineById(props.routineId))
+const week = computed(() => weekStore.getWeekById(props.weekId))
 const dayData = computed(() => routine.value?.days.find((d) => d.id === props.dayId))
 const dayPlan = computed(() => week.value?.days.find((d) => d.dayId === props.dayId))
 
@@ -75,7 +75,7 @@ function initSessionData() {
 }
 
 onMounted(async () => {
-  await Promise.all([initRoutines(), initWeeks()])
+  await Promise.all([routineStore.ensureLoaded(), weekStore.ensureLoaded()])
   initSessionData()
 })
 
@@ -105,7 +105,7 @@ async function handleSave() {
 
   if (exercises.length === 0) return
 
-  await saveDayWorkout(props.weekId, props.dayId, exercises)
+  await weekStore.saveDayWorkout(props.weekId, props.dayId, exercises)
   saved.value = true
 
   setTimeout(() => {

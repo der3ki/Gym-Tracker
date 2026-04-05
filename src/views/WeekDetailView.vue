@@ -72,8 +72,8 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRoutine } from '@/composables/useRoutine'
-import { useTrainingWeek } from '@/composables/useTrainingWeek'
+import { useRoutineStore } from '@/stores/routine'
+import { useTrainingWeekStore } from '@/stores/trainingWeek'
 import type { WeekDayPlan } from '@/types'
 
 const props = defineProps<{
@@ -82,18 +82,18 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
-const { getRoutineById, init: initRoutines } = useRoutine()
-const { getWeekById, syncWeekWithRoutine, completeWeekAndGenerateNext, init: initWeeks } = useTrainingWeek()
+const routineStore = useRoutineStore()
+const weekStore = useTrainingWeekStore()
 
 onMounted(async () => {
-  await Promise.all([initRoutines(), initWeeks()])
+  await Promise.all([routineStore.ensureLoaded(), weekStore.ensureLoaded()])
   if (routine.value) {
-    await syncWeekWithRoutine(props.weekId, routine.value)
+    await weekStore.syncWeekWithRoutine(props.weekId, routine.value)
   }
 })
 
-const routine = computed(() => getRoutineById(props.routineId))
-const week = computed(() => getWeekById(props.weekId))
+const routine = computed(() => routineStore.getRoutineById(props.routineId))
+const week = computed(() => weekStore.getWeekById(props.weekId))
 
 const allDaysCompleted = computed(() =>
   week.value?.days.every((d) => d.status === 'completed') ?? false,
@@ -123,7 +123,7 @@ function goToWorkout(dayId: string) {
 
 async function handleCompleteWeek() {
   if (!routine.value) return
-  const nextWeek = await completeWeekAndGenerateNext(props.weekId, routine.value)
+  const nextWeek = await weekStore.completeWeekAndGenerateNext(props.weekId, routine.value)
   if (nextWeek) {
     router.push({
       name: 'week-detail',

@@ -36,25 +36,26 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRoutine } from '@/composables/useRoutine'
+import { useRoutineStore } from '@/stores/routine'
 import RoutineCard from '@/components/RoutineCard.vue'
 
 const router = useRouter()
-const { routines, init, createRoutine, deleteRoutine } = useRoutine()
+const routineStore = useRoutineStore()
+const routines = routineStore.routines
 
-onMounted(() => init())
+onMounted(() => routineStore.ensureLoaded())
 
 const newRoutineName = ref('')
 
 async function handleCreate() {
   const name = newRoutineName.value.trim()
   if (!name) return
-  await createRoutine(name)
+  await routineStore.createRoutine(name)
   newRoutineName.value = ''
 }
 
 async function handleDelete(routineId: string) {
-  await deleteRoutine(routineId)
+  await routineStore.deleteRoutine(routineId)
 }
 
 function handleSelect(routineId: string) {
