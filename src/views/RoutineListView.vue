@@ -13,7 +13,8 @@
           aria-label="Nombre de la nueva rutina"
         />
         <button type="submit" class="btn-primary" :disabled="!newRoutineName.trim() || creating">
-          {{ creating ? 'Creando...' : 'Crear' }}
+          <Spinner v-if="creating" />
+          <span>{{ creating ? 'Creando...' : 'Crear' }}</span>
         </button>
       </form>
 
@@ -35,14 +36,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useRoutineStore } from '@/stores/routine'
 import { useAsyncAction } from '@/composables/useAsyncAction'
 import RoutineCard from '@/components/RoutineCard.vue'
+import Spinner from '@/components/Spinner.vue'
 
 const router = useRouter()
 const routineStore = useRoutineStore()
-const routines = routineStore.routines
+const { routines } = storeToRefs(routineStore)
 
 onMounted(() => routineStore.ensureLoaded())
 

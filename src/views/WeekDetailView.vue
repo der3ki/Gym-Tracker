@@ -64,7 +64,8 @@
         :disabled="completing"
         @click="runCompleteWeek"
       >
-        {{ completing ? 'Completando...' : 'Completar semana y generar la siguiente' }}
+        <Spinner v-if="completing" />
+        <span>{{ completing ? 'Completando...' : 'Completar semana y generar la siguiente' }}</span>
       </button>
     </div>
   </div>
@@ -77,6 +78,7 @@ import { useRoutineStore } from '@/stores/routine'
 import { useTrainingWeekStore } from '@/stores/trainingWeek'
 import { useAsyncAction } from '@/composables/useAsyncAction'
 import type { WeekDayPlan } from '@/types'
+import Spinner from '@/components/Spinner.vue'
 
 const props = defineProps<{
   routineId: string

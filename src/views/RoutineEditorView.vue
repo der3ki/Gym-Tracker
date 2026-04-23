@@ -28,7 +28,8 @@
             aria-label="Nombre del nuevo dia"
           />
           <button type="submit" class="btn-primary" :disabled="!newDayName.trim() || addingDay">
-            {{ addingDay ? 'Agregando...' : '+ Dia' }}
+            <Spinner v-if="addingDay" />
+            <span>{{ addingDay ? 'Agregando...' : '+ Dia' }}</span>
           </button>
         </form>
       </section>
@@ -58,6 +59,7 @@ import { useAsyncAction } from '@/composables/useAsyncAction'
 import { createExerciseFactory } from '@/composables/useExerciseFactory'
 import type { ExerciseType, RepRange } from '@/types'
 import DayCard from '@/components/DayCard.vue'
+import Spinner from '@/components/Spinner.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()

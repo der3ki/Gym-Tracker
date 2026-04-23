@@ -58,7 +58,8 @@
           class="btn-primary btn-block"
           :disabled="loading"
         >
-          {{ loading ? 'Cargando...' : (mode === 'login' ? 'Entrar' : 'Crear cuenta') }}
+          <Spinner v-if="loading" />
+          <span>{{ loading ? 'Cargando...' : (mode === 'login' ? 'Entrar' : 'Crear cuenta') }}</span>
         </button>
       </form>
 
@@ -78,6 +79,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { login, register, loginWithGoogle } from '@/services/auth'
 import { setStorageMode } from '@/services/storage-provider'
+import Spinner from '@/components/Spinner.vue'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '888434800135-mkvjmr064n8dsr561nocpp4bpa4tar2u.apps.googleusercontent.com'
 

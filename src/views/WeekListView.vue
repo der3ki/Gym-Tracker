@@ -20,7 +20,8 @@
           :disabled="starting"
           @click="runStartFirstWeek"
         >
-          {{ starting ? 'Iniciando...' : 'Empezar Semana 1' }}
+          <Spinner v-if="starting" />
+          <span>{{ starting ? 'Iniciando...' : 'Empezar Semana 1' }}</span>
         </button>
 
         <div v-if="routineWeeks.length === 0" class="empty-state">
@@ -64,6 +65,7 @@ import { useRoutineStore } from '@/stores/routine'
 import { useTrainingWeekStore } from '@/stores/trainingWeek'
 import { useAsyncAction } from '@/composables/useAsyncAction'
 import type { TrainingWeek } from '@/types'
+import Spinner from '@/components/Spinner.vue'
 
 const props = defineProps<{ routineId: string }>()
 const router = useRouter()
