@@ -25,7 +25,8 @@
         :disabled="!hasData || saving"
         @click="runSave"
       >
-        {{ saving ? 'Guardando...' : 'Guardar entrenamiento' }}
+        <Spinner v-if="saving" />
+        <span>{{ saving ? 'Guardando...' : 'Guardar entrenamiento' }}</span>
       </button>
 
       <p v-if="saved" class="text-sm mt-sm" style="text-align: center; color: var(--color-success)">
@@ -43,6 +44,7 @@ import { useTrainingWeekStore } from '@/stores/trainingWeek'
 import { useAsyncAction } from '@/composables/useAsyncAction'
 import type { SetLog, ExerciseTarget } from '@/types'
 import ExerciseSession from '@/components/ExerciseSession.vue'
+import Spinner from '@/components/Spinner.vue'
 
 const props = defineProps<{
   routineId: string

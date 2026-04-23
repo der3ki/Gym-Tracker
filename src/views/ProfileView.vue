@@ -20,7 +20,8 @@
             />
           </div>
           <button type="submit" class="btn-primary btn-block" :disabled="!newName.trim() || creatingProfile">
-            {{ creatingProfile ? 'Creando...' : 'Crear perfil' }}
+            <Spinner v-if="creatingProfile" />
+            <span>{{ creatingProfile ? 'Creando...' : 'Crear perfil' }}</span>
           </button>
         </form>
       </div>
@@ -76,7 +77,8 @@
             <div class="form-actions">
               <button type="button" class="btn-ghost" @click="editing = false">Cancelar</button>
               <button type="submit" class="btn-primary" :disabled="savingProfile">
-                {{ savingProfile ? 'Guardando...' : 'Guardar' }}
+                <Spinner v-if="savingProfile" />
+                <span>{{ savingProfile ? 'Guardando...' : 'Guardar' }}</span>
               </button>
             </div>
           </form>
@@ -151,6 +153,7 @@ import { getAuthUser, logout } from '@/services/auth'
 import { setStorageMode } from '@/services/storage-provider'
 import type { PersonalRecord, ExerciseProgression } from '@/stores/stats'
 import ProgressionChart from '@/components/ProgressionChart.vue'
+import Spinner from '@/components/Spinner.vue'
 
 const router = useRouter()
 const authUser = getAuthUser()
